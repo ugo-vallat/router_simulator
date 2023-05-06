@@ -1,7 +1,15 @@
+#define _POSIX_C_SOURCE 200809L
 
-#include "tab_rout.h"
 #include <stdio.h>
-#include <math.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdint.h>
+
+#include "linked_list.h"
+#include "packet.h"
+#include "tab_rout.h"
 
 
 
@@ -153,12 +161,6 @@ Packet table_to_packet(const Table t) {
 
 /*------------------------------------------ EXPORT ------------------------------------------*/
 
-void print_output(void* entry, void* output) {
-    fprintf((FILE*)output, "%-15s %-3d %-15s %-3d\n", ((Entry)entry)->ipNet, ((Entry)entry)->maskRout,((Entry)entry)->ipRout, 
-     ((Entry)entry)->weight);
-}
-
-
 void table_export(const Table t, char* path) {
     FILE *output;
     output = fopen(path, "w");
@@ -166,8 +168,9 @@ void table_export(const Table t, char* path) {
         perror("fopen error");
         return;
     }
-    fprintf(output, "%d\n", list_size(t->list));
-    list_map(t->list, print_output, output);
+    fprintf(output, "size = %d\n", list_size(t->list));
+    dup2(fileno(output), STDOUT_FILENO);
+    table_display(t);
 }
 
 
@@ -200,7 +203,6 @@ Table table_import(char* path) {
         }
         table_add(table, ipNet, ipRout, maskRout, weight);
     }
-    table_display(table);
     fclose(input);
     return table;
 }

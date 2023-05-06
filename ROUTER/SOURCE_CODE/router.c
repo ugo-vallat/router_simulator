@@ -1,8 +1,22 @@
 #define _POSIX_C_SOURCE 200809L
 
+#include <netinet/in.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <time.h>
 #include <signal.h>
+#include <stdbool.h>
+#include <sys/wait.h>
+#include <sys/select.h>
 
+
+#include "packet.h"
+#include "tab_rout.h"
 #include "router.h"
 
 #define TIME_READ_MAX 5
@@ -292,13 +306,13 @@ void router_table(int num, char* ip_vir, Table table, int tube_send, int tube_re
         } else {
 // if(num == 3)table_display(table);
             export_table_router(table, num);
-            table_display(table);
+// table_display(table);
             sprintf(message,"[router_table %d] No more block to send", num);
             error_tab(message, EXIT_FAILURE, tube_send, tube_recv, table, buff);
         }
     }
     export_table_router(table, num);
-    table_display(table);
+// table_display(table);
     sprintf(message,"[router_table %d] number max operation reached", num);
     error_tab(message, EXIT_FAILURE, tube_send, tube_recv, table, buff);
 }
