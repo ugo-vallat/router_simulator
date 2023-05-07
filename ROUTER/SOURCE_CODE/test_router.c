@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #include "linked_list.h"
 #include "packet.h"
@@ -178,16 +179,10 @@ int main(void) {
         perror("open config_network.txt error");
         exit(EXIT_FAILURE);
     }
-    // printf("[main] make list_ip_rout\n");
     list_ip_rout = make_list_ip_rout(config_network);
-    // list_map(list_ip_rout, print_ip_rout, NULL);
-    // printf("[main] make list_connexion\n");
     list_connexion = make_list_connexion(config_network);
-    // list_map(list_connexion, print_connexion, NULL);
     fclose(config_network);
-    // printf("[main] make list_data_rout\n");
     list_data_rout = make_list_data_rout(list_ip_rout, list_connexion);
-    // list_map(list_data_rout, print_data, NULL);
 
 
 
@@ -198,8 +193,6 @@ int main(void) {
             exit(EXIT_FAILURE);
         } else if (status == 0) {
             data = (DataRout)list_at(list_data_rout, i);
-            // printf("Router %d : \n  - ip_phy = %s\n    - port_rout = %d\n    - port_next_rout = %d\n    - nb_next_rout = %d\n    - ip_vir = %s\n"
-            // ,data->num, data->ip_phy, data->port_rout, data->port_next_rout[0], data->nb_next_rout, data->ip_vir);
             router_main(data->num, data->ip_phy, data->port_rout, data->port_next_rout, data->nb_next_rout, data->ip_vir);
             exit(0);
         }

@@ -1,15 +1,8 @@
 #ifndef __TAB_ROUT_H__
 #define __TAB_ROUT_H__
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdint.h>
-
-#include "linked_list.h"
 #include "packet.h"
+
 
 #define SIZE_IP_NET 15
 #define SIZE_IP_ROUT 15

@@ -1,13 +1,7 @@
 #ifndef __PACKET_H__
 #define __PACKET_H__
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdbool.h>
 
-#include "linked_list.h"
 
 #define SIZE_BLOCK 64
 #define SIZE_BUFF_BLOCK (SIZE_BLOCK*sizeof(char))

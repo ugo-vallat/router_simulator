@@ -20,10 +20,10 @@
 #include "router.h"
 
 #define TIME_READ_MAX 5
-#define TIME_TO_LIVE_MAX 10
-#define NB_RECEIV_MAX 512
-#define NB_TRANSMITE_MAX 512
-#define NB_MODIF_TABLE_MAX 512
+#define TIME_TO_LIVE_MAX 15
+#define NB_RECEIV_MAX 1024
+#define NB_TRANSMITE_MAX 1024
+#define NB_MODIF_TABLE_MAX 1024
 
 
 
@@ -85,7 +85,6 @@ void router_receiver(int num, char* ip_phy, int port,  int tube) {
     char message[BUFSIZ]; 
 
     /* scocket creation */
-// printf("[router %d] Creation socket recv\n", num);
     socket_rout = socket(AF_INET, SOCK_DGRAM, 0);
     if(socket_rout == -1) {
         close(tube);
@@ -103,8 +102,6 @@ void router_receiver(int num, char* ip_phy, int port,  int tube) {
         error_recv("[router_receiver] bind error", EXIT_FAILURE, socket_rout, tube, buff);
     }
 
-// signal(SIGALRM, process_killer);
-// alarm(TIME_TO_LIVE_MAX);
     FD_ZERO(&readfds);
     FD_SET(socket_rout, &readfds);
 
@@ -114,18 +111,13 @@ void router_receiver(int num, char* ip_phy, int port,  int tube) {
         timeout.tv_usec = 0;
 
         /* wait something on socket */
-// printf("[router_receiver] Waiting block\n");
         ready = select(socket_rout + 1, &readfds, NULL, NULL, &timeout);
         if(ready > 0) { /* if something */
             /* read block on socket */
-// printf("[router_receiver] read block in socket\n");
             if(recvfrom(socket_rout, buff, SIZE_BUFF_BLOCK, 0, (struct sockaddr *)&addr_se, &addr_se_len) == -1) {
                 error_recv("[router_receiver] recvfrom error", EXIT_FAILURE, socket_rout, tube, buff);
             }
-// if(num == 3) printf("[receiver 3] new bloc : %s\n", buff);
-
             /* send block to the table */
-// printf("[router receiver %d] Received bloc : %s\n",num , block);
             if(write(tube, buff, SIZE_BUFF_BLOCK) == -1) {
                 error_recv("[router_receiver] write to table error", EXIT_FAILURE, socket_rout, tube, buff);
             }
@@ -160,7 +152,6 @@ struct sockaddr_in * init_addr(char* ip_phy, int *port, int nb_port) {
 }
 
 void send_all(const struct sockaddr_in* addr, int nb_addr, const int socket_send,const Block block) {
-    // printf("[router_transmitter] sending block %s\n", block);
     for(int i = 0; i < nb_addr; i++) {
         if(sendto(socket_send, block, SIZE_BUFF_BLOCK, 0, (const struct sockaddr *)&(addr[i]), sizeof(addr[i])) == -1) {
             close(socket_send);
@@ -186,9 +177,6 @@ void router_transmitter(int num, char* ip_phy, int *port, int nb_port, int tube)
     }
 
     addr_dest = init_addr(ip_phy, port, nb_port);
-// printf("[router_transmitter] Ready \n");
-// signal(SIGALRM, process_killer);
-// alarm(TIME_TO_LIVE_MAX);
 
     FD_ZERO(&readfds);
     FD_SET(tube, &readfds);
@@ -197,14 +185,11 @@ void router_transmitter(int num, char* ip_phy, int *port, int nb_port, int tube)
         // set timeout to 10 seconds
         timeout.tv_sec = TIME_READ_MAX;
         timeout.tv_usec = 0;
-        // printf("[router_transmitter] Waiting block to send\n");
         ready = select(tube + 1, &readfds, NULL, NULL, &timeout);
-        // printf("[router_transmitter] Read in pip_phye block to send\n");
         if (ready != 0 && (nb_read = read(tube, buff, SIZE_BUFF_BLOCK)) != 0) {
             if(nb_read == -1) {
                 error_tran("[router_transmitter] read block from table error", EXIT_FAILURE, socket_rout, tube, buff, addr_dest);
             }
-// if(num == 3) printf("[transmitter 3] bloc send : %s\n", buff);
             send_all(addr_dest, nb_port, socket_rout,buff);
         } else {
             sprintf(message,"[router_transmitter %d] No more block to send", num);
@@ -241,8 +226,6 @@ void send_block(int tube, Block block) {
 }
 
 void send_packet(int tube, Packet packet, char* ip_vir) {
-// printf("[router table] send packet to transmitter\n");
-// packet_display(packet);
     Block block;
     for (int i = 0; i < packet_size(packet); i++) {
         block = packet_block_at(packet, i);
@@ -260,9 +243,7 @@ char* create_path_export(int num) {
 
 void export_table_router(Table table, int num) {
     char* path_export = create_path_export(num);
-// if(num == 3) table_display(table);
     table_export(table, path_export);
-// if(num == 3) printf(" >>> table exported\n");
     free(path_export);
 }
 
@@ -275,18 +256,13 @@ void router_table(int num, char* ip_vir, Table table, int tube_send, int tube_re
     char message[BUFSIZ]; 
     int nb_read;
 
-    // printf("[TABLE %d] on envoie la table !!!\n", num);
     send_packet(tube_send, table_to_packet(table), ip_vir);
-
-    // signal(SIGALRM, process_killer);
-    // alarm(TIME_TO_LIVE_MAX);
 
     FD_ZERO(&readfds);
     FD_SET(tube_recv, &readfds);
 
     for(int i = 0; i < NB_MODIF_TABLE_MAX; i++) {
         sleep(1);
-        // printf("[router table] waiting block\n");
         timeout.tv_sec = TIME_READ_MAX;
         timeout.tv_usec = 0;
         ready = select(tube_recv + 1, &readfds, NULL, NULL, &timeout);
@@ -295,24 +271,18 @@ void router_table(int num, char* ip_vir, Table table, int tube_send, int tube_re
             if( nb_read == -1) {
                 error_tab("[router_table] read tube from receiver error", EXIT_FAILURE, tube_send, tube_recv, table, buff);
             }
-// printf("[router table] add block to table\n");
-// printf("[table %d] add to table : %s\n", num, buff );
 
             if(table_add_block(table, buff)) {
-// printf("[table %d] block added : %s\n",num,  buff);
                 add_ip_vir_and_weight(buff, ip_vir);
                 send_block(tube_send, buff);
             }
         } else {
-// if(num == 3)table_display(table);
             export_table_router(table, num);
-// table_display(table);
             sprintf(message,"[router_table %d] No more block to send", num);
             error_tab(message, EXIT_FAILURE, tube_send, tube_recv, table, buff);
         }
     }
     export_table_router(table, num);
-// table_display(table);
     sprintf(message,"[router_table %d] number max operation reached", num);
     error_tab(message, EXIT_FAILURE, tube_send, tube_recv, table, buff);
 }
@@ -330,10 +300,6 @@ char* create_path_import(int num) {
 }
 
 
-
-
-
-
 void router_main(int num, char* ip_phy, int port_recv, int* port_tran, int nb_port, char* ip_vir) {
     int tube_send[2];
     int tube_recv[2];
@@ -342,26 +308,21 @@ void router_main(int num, char* ip_phy, int port_recv, int* port_tran, int nb_po
     Table table;
     int status;
     
-    // printf("[router %d] creation path to config\n", num);
     path_import = create_path_import(num);
 
-    // printf("[router %d] import table\n", num);
     if((table = table_import(path_import)) == NULL) {
         fprintf(stdout, "[router_main] Error loading config_router_%d\n", num);
         exit(EXIT_FAILURE);
     }
 
-    // printf("[router %d] Creation pipe\n", num);
     if(pipe(tube_send) == -1 || pipe(tube_recv) == -1) {
         perror("[router_main] Error opening pipe");
         exit(EXIT_FAILURE);
     }
-
     
 
     // ######################################### FORK #########################################
 
-    // printf("[router %d] Fork receiver\n", num);
     if ((pid_recv = fork()) == -1) {
         error_router("[router_main] fork receiver error",EXIT_FAILURE, tube_send, tube_recv, table);
         exit(1);
@@ -371,7 +332,6 @@ void router_main(int num, char* ip_phy, int port_recv, int* port_tran, int nb_po
         exit(1);
     }
 
-    // printf("[router %d] Fork transmitter\n", num);
     if ((pid_tran = fork()) == -1) {
         error_router("[router_main] fork transmitter error",EXIT_FAILURE, tube_send, tube_recv, table);
         exit(1);
@@ -382,7 +342,6 @@ void router_main(int num, char* ip_phy, int port_recv, int* port_tran, int nb_po
             exit(1);
     }
 
-    // printf("[router %d] Fork table\n", num);
     if ((pid_tab = fork()) == -1) {
             error_router("[router_main] fork table error", EXIT_FAILURE,tube_send, tube_recv, table);
             exit(1);
@@ -392,7 +351,6 @@ void router_main(int num, char* ip_phy, int port_recv, int* port_tran, int nb_po
         router_table(num,ip_vir, table, tube_send[1], tube_recv[0]);
         exit(1);
     }
-    // printf("[router %d] sleep\n", num);
 
 
     // ######################################### END ROUTER #########################################
@@ -401,7 +359,7 @@ void router_main(int num, char* ip_phy, int port_recv, int* port_tran, int nb_po
     close(tube_send[0]); close(tube_send[1]);
 
     printf("[router %d] start succesfully\n", num);
-    sleep(TIME_TO_LIVE_MAX*2);
+    sleep(TIME_TO_LIVE_MAX);
     free(path_import);
 
     kill(pid_recv, SIGTERM);
@@ -410,11 +368,11 @@ void router_main(int num, char* ip_phy, int port_recv, int* port_tran, int nb_po
 
     
     waitpid(pid_recv, &status, 0);
-    printf("[router %d] End process receiver ######################\n", num);
+    printf("[router %d] End process receiver \n", num);
     waitpid(pid_tab, &status, 0);
-    printf("[router %d] End process table ######################\n", num);
+    printf("[router %d] End process table \n", num);
     waitpid(pid_tran, &status, 0);
-    printf("[router %d] End process transmitter ######################\n", num);
+    printf("[router %d] End process transmitter \n", num);
 
 
 }

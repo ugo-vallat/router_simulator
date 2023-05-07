@@ -1,10 +1,6 @@
 #ifndef __LIST_H__
 #define __LIST_H__
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
 #define FREE_DATA true
 #define KEEP_DATA false
 

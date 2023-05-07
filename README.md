@@ -3,7 +3,7 @@
 
 Ce projet est un simulateur de routeur permettant de voir les échanges de tables de routage.
 
-## Installation
+# Installation
 
 Pour tester le simulateur, vous pouvez fork le projet puis le cloner sur votre machine. Compilez le programme avec make et puis lancez-le :
 
@@ -15,7 +15,7 @@ $ ./test_router
 
 # Utilisation
 
-Des jeux de test sont déjà présent dans le dossier SET_OF_TEST, copiez les fichiés .txt du set que vous désirez et mettez les dans le dossier INPUT puis lancer le programme avec ```./test_router````.
+Des jeux de test sont déjà présent dans le dossier SET_OF_TEST, copiez les fichiés .txt du set que vous désirez et mettez les dans le dossier INPUT puis lancer le programme avec `./test_router`.
 
 Les fichiers de configuration se décomposent en 2 parties :
 
