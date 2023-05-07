@@ -168,8 +168,8 @@ void table_export(const Table t, char* path) {
         perror("fopen error");
         return;
     }
-    fprintf(output, "size = %d\n", list_size(t->list));
     dup2(fileno(output), STDOUT_FILENO);
+    fprintf(stdout, "size = %d\n", list_size(t->list));
     table_display(t);
 }
 

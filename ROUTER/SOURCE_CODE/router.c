@@ -242,6 +242,7 @@ char* create_path_export(int num) {
 }
 
 void export_table_router(Table table, int num) {
+    printf("\n[router %d ] ### export table ###\n\n",num);
     char* path_export = create_path_export(num);
     table_export(table, path_export);
     free(path_export);
@@ -262,11 +263,9 @@ void router_table(int num, char* ip_vir, Table table, int tube_send, int tube_re
     FD_SET(tube_recv, &readfds);
 
     for(int i = 0; i < NB_MODIF_TABLE_MAX; i++) {
-        sleep(1);
         timeout.tv_sec = TIME_READ_MAX;
         timeout.tv_usec = 0;
         ready = select(tube_recv + 1, &readfds, NULL, NULL, &timeout);
-        
         if(ready > 0 && (nb_read = read(tube_recv, buff, SIZE_BUFF_BLOCK)) != 0) {
             if( nb_read == -1) {
                 error_tab("[router_table] read tube from receiver error", EXIT_FAILURE, tube_send, tube_recv, table, buff);
