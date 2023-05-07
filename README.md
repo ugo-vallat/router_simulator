@@ -64,6 +64,24 @@ ____________________________________________________
         20.2.2.0 |  24 |         2.2.2.2 |   2 
 ```
 
+## Notes
+
+Dans les fichiers `router.c` et `test_router.c` se trouvent des constantes pouvant être modifiées (mais déconseillé) :
+
+```c
+/*----------------- dans router.c -----------------*/
+#define TIME_READ_MAX 5 //temps de blocage max des récepteurs et émetteurs
+#define TIME_TO_LIVE_MAX 15 //durée de vie max de tous les processus
+#define NB_RECEIV_MAX 1024 // nombre max de packects reçus par le récepteur
+#define NB_TRANSMITE_MAX 1024 // nombre max de packects envoyés par l'emmetteur
+#define NB_MODIF_TABLE_MAX 1024 // nombre max de modifications de la table 
+
+/*----------------- dans test_router.c -----------------*/
+#define NUMBER_ROUTER_MAX 8 // nombre maximum de routeurs
+#define LOCALHOST "127.0.0.1" // adresse localhost
+
+```
+
 
 # Licence
 
