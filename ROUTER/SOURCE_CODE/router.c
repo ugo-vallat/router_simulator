@@ -254,7 +254,7 @@ void send_packet(int tube, Packet packet, char* ip_vir) {
 
 char* create_path_export(int num) {
     char *path = malloc(sizeof(char)*BUFSIZ);
-    sprintf(path, "../OUTPUT/table_routeur_%d.txt", num);
+    sprintf(path, "../OUTPUT/table_router_%d.txt", num);
     return path;
 }
 
