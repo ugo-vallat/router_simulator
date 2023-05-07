@@ -40,6 +40,9 @@ test_router: test_router.o router.o tab_rout.o packet.o linked_list.o
 clean:
 	@rm -rf *.o
 
+mrproper: clean
+	@rm -rf $(EXEC)
+
 deliver:
 	zip -r $(DELIVER_FMT).zip .
 
